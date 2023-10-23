@@ -1,10 +1,8 @@
-from csv import reader
 import os
+from csv import reader
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-
-from django.conf import settings
 
 from ...models import Ingredient, Tag
 
