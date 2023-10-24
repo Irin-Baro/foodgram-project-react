@@ -15,7 +15,7 @@ services:
   backend:
     depends_on:
       - db
-    image: foodgram_backend
+    image: irinbaro/foodgram_backend
     build: ../backend/
     env_file: ../.env
     command: >
@@ -30,7 +30,7 @@ services:
       - media:/app/media/
   
   frontend:
-    image: foodgram_frontend
+    image: irinbaro/foodgram_frontend
     build:
       context: ../frontend
       dockerfile: Dockerfile
@@ -51,4 +51,4 @@ services:
       - ../frontend/build:/usr/share/nginx/html/
       - ../docs/:/usr/share/nginx/html/api/docs/
       - static:/static/
-      - media:/app/media/
+      - media:/media/
