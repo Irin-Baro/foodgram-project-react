@@ -131,10 +131,7 @@ class RecipeSerializer(serializers.ModelSerializer):
     )
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    image = Base64ImageField(
-        required=True,
-        validators=(validate_image,),
-    )
+    image = serializers.SerializerMethodField()
     cooking_time = serializers.IntegerField(
         validators=(validate_cooking_time,),
     )
@@ -160,6 +157,10 @@ class RecipeSerializer(serializers.ModelSerializer):
     def get_is_in_shopping_cart(self, obj):
         return has_user_relation(self, obj, obj.shoppingcarts)
 
+    def get_image(self, obj):
+        if obj.image:
+            return obj.image.url
+
 
 class RecipeCreateSerializer(RecipeSerializer):
     """Сериализатор создания/редактирования рецепта."""
@@ -167,6 +168,10 @@ class RecipeCreateSerializer(RecipeSerializer):
     tags = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Tag.objects.all(),
+    )
+    image = Base64ImageField(
+        required=True,
+        validators=(validate_image,),
     )
 
     class Meta(RecipeSerializer.Meta):
