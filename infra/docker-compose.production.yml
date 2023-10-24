@@ -26,7 +26,6 @@ services:
     volumes:
       - static:/static/
       - media:/app/media/
-      - ./media:/app/media/
       
   frontend:
     image: irinbaro/foodgram_frontend:latest
