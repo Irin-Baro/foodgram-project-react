@@ -25,7 +25,7 @@ services:
       gunicorn --bind 0.0.0.0:8000 backend.wsgi"
     volumes:
       - static:/static
-      - media:/var/html/media
+      - media:/app/media
       
   frontend:
     image: irinbaro/foodgram_frontend:latest
