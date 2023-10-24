@@ -4,10 +4,11 @@ from csv import reader
 from django.conf import settings
 from django.core.management.base import BaseCommand
 
-from ...models import Ingredient
+from ...models import Ingredient, Tag
 
 DATA = [
     (Ingredient, 'ingredients.csv'),
+    (Tag, 'tags.csv'),
 ]
 
 
@@ -27,6 +28,12 @@ class Command(BaseCommand):
                             model.objects.get_or_create(
                                 name=row[0],
                                 measurement_unit=row[1]
+                            )
+                        if model == Tag:
+                            model.objects.get_or_create(
+                                name=row[0],
+                                color=row[1],
+                                slug=row[2]
                             )
                     except ValueError as error:
                         self.stdout.write(self.style.ERROR(
