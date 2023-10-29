@@ -1,33 +1,33 @@
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-from users.models import User
 
-from .validators import validate_color
+from . import constants
+from users.models import User
 
 
 class Tag(models.Model):
     """Модель тега."""
 
     name = models.CharField(
-        max_length=200,
+        max_length=constants.MAX_TAG_NAME_LENGTH,
         unique=True,
-        db_index=True,
         verbose_name='Название тега',
         help_text='Укажите название тега',
     )
     color = models.CharField(
         unique=True,
-        null=True,
-        blank=True,
-        max_length=7,
-        validators=(validate_color,),
+        max_length=constants.MAX_TAG_COLOR_LENGTH,
+        validators=(
+            RegexValidator(
+                regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
+                message='Введенное значение не соответствует формату HEX!'
+            ),
+        ),
         verbose_name='Цветовой HEX-код',
         help_text='Укажите цветовой HEX-код',
     )
     slug = models.SlugField(
-        max_length=200,
-        null=True,
-        blank=True,
+        max_length=constants.MAX_TAG_SLUG_LENGTH,
         unique=True,
         verbose_name='Уникальный слаг',
         help_text='Укажите уникальный слаг',
@@ -46,13 +46,13 @@ class Ingredient(models.Model):
     """Модель ингредиента."""
 
     name = models.CharField(
-        max_length=150,
+        max_length=constants.MAX_INGREDIENT_NAME_LENGTH,
         db_index=True,
         verbose_name='Название ингредиента',
         help_text='Укажите название ингредиента',
     )
     measurement_unit = models.CharField(
-        max_length=150,
+        max_length=constants.MAX_MEASUREMENT_UNIT_LENGTH,
         verbose_name='Единицы измерения',
         help_text='Укажите единицы измерения ингредиента',
     )
@@ -77,7 +77,7 @@ class Recipe(models.Model):
         help_text='Укажите автор рецепта',
     )
     name = models.CharField(
-        max_length=200,
+        max_length=constants.MAX_RECIPE_NAME_LENGTH,
         db_index=True,
         verbose_name='Название рецепта',
         help_text='Укажите название рецепта',
@@ -92,13 +92,6 @@ class Recipe(models.Model):
         verbose_name='Описание',
         help_text='Введите описание рецепта',
     )
-    ingredients = models.ManyToManyField(
-        Ingredient,
-        through='RecipeIngredient',
-        related_name='recipes',
-        verbose_name='Список ингредиентов',
-        help_text='Выберите ингредиенты',
-    )
     tags = models.ManyToManyField(
         Tag,
         related_name='recipes',
@@ -107,7 +100,10 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveSmallIntegerField(
         validators=(
-            MinValueValidator(1, message='Минимальное время: 1 минута!'),
+            MinValueValidator(
+                constants.MIN_VALUE_COOKING_TIME,
+                message='Минимальное время: 1 минута!'
+            ),
         ),
         verbose_name='Время приготовления (в минутах)',
         help_text='Укажите время приготовления',
@@ -126,6 +122,14 @@ class Recipe(models.Model):
     def __str__(self):
         return self.name
 
+    @property
+    def ingredients(self):
+        recipe_ingredients = RecipeIngredient.objects.filter(recipe=self)
+        return [
+            (recipe_ingredient.ingredient, recipe_ingredient.amount)
+            for recipe_ingredient in recipe_ingredients
+        ]
+
 
 class RecipeIngredient(models.Model):
     """Модель ингридиентов рецепта."""
@@ -133,20 +137,23 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         on_delete=models.CASCADE,
-        related_name='recipe_ingredients',
+        related_name='ingredients',
         verbose_name='Рецепт',
         help_text='Укажите рецепт',
     )
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
-        related_name='recipe_ingredients',
+        related_name='+',
         verbose_name='Ингредиент',
         help_text='Укажите ингредиент',
     )
     amount = models.PositiveSmallIntegerField(
         validators=(
-            MinValueValidator(1, message='Минимальное количество: 1!'),
+            MinValueValidator(
+                constants.MIN_VALUE_INGREDIENT_AMOUNT,
+                message='Минимальное количество: 1!'
+            ),
         ),
         verbose_name='Количество',
         help_text='Укажите количество ингредиента в рецепте',
@@ -158,57 +165,3 @@ class RecipeIngredient(models.Model):
 
     def __str__(self):
         return f'{self.ingredient.name}: {self.amount}'
-
-
-class UserRecipe(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        verbose_name='Пользователь',
-        help_text='Укажите пользователя',
-    )
-    recipe = models.ForeignKey(
-        Recipe,
-        on_delete=models.CASCADE,
-        verbose_name='Рецепт',
-        help_text='Выберите рецепт',
-    )
-
-    class Meta:
-        abstract = True
-        ordering = ('-id',)
-        default_related_name = '%(class)ss'
-
-
-class ShoppingCart(UserRecipe):
-    """Модель корзины покупок."""
-
-    class Meta(UserRecipe.Meta):
-        constraints = (
-            models.UniqueConstraint(
-                fields=('user', 'recipe'),
-                name='unique_recipe_in_cart'
-            ),
-        )
-        verbose_name = 'Корзина покупок'
-        verbose_name_plural = 'Корзины покупок'
-
-    def __str__(self):
-        return f'{self.user.username} добавил в список покупок {self.recipe}'
-
-
-class Favorite(UserRecipe):
-    """Модель избранного рецепта."""
-
-    class Meta(UserRecipe.Meta):
-        constraints = (
-            models.UniqueConstraint(
-                fields=('user', 'recipe'),
-                name='unique_favourite_recipe'
-            ),
-        )
-        verbose_name = 'Избранный рецепт'
-        verbose_name_plural = 'Избранные рецепты'
-
-    def __str__(self):
-        return f'{self.user.username} добавил в избранное {self.recipe}'

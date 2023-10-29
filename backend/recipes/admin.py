@@ -1,7 +1,6 @@
 from django.contrib import admin
 
-from .models import (Favorite, Ingredient, Recipe, RecipeIngredient,
-                     ShoppingCart, Tag)
+from .models import Ingredient, Recipe, RecipeIngredient, Tag
 
 
 @admin.register(Ingredient)
@@ -51,11 +50,11 @@ class RecipeAdmin(admin.ModelAdmin):
     inlines = (RecipeIngredientAdmin,)
 
     def get_favorite_count(self, obj):
-        return obj.favorites.count()
+        return obj.users_favorite_recipes.count()
     get_favorite_count.short_description = 'Число добавлений в избранное'
 
     def display_ingredients(self, obj):
-        return ', '.join([ingredient.name for ingredient
+        return ', '.join([ingredient.ingredient.name for ingredient
                           in obj.ingredients.all()])
     display_ingredients.short_description = 'Ингредиенты'
 
@@ -63,17 +62,3 @@ class RecipeAdmin(admin.ModelAdmin):
         return ', '.join([tag.name for tag
                           in obj.tags.all()])
     display_tags.short_description = 'Теги'
-
-
-@admin.register(Favorite)
-class FavoriteAdmin(admin.ModelAdmin):
-    """Отображение модели Favorite в админке."""
-
-    list_display = ('user', 'recipe')
-
-
-@admin.register(ShoppingCart)
-class ShoppingCartAdmin(admin.ModelAdmin):
-    """Отображение модели ShoppingCart в админке."""
-
-    list_display = ('user', 'recipe')

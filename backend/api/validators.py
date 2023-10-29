@@ -1,6 +1,7 @@
-from recipes.models import Ingredient
 from rest_framework import status
 from rest_framework.serializers import ValidationError
+
+from recipes.models import Ingredient
 
 
 def validate_subscription(self, data):
@@ -29,7 +30,7 @@ def validate_tags_ingredients(self, data):
             raise ValidationError({'tags': f'Тег {tag} уже выбран!'})
         unique_tags.add(tag)
 
-    ingredients = data.get('recipe_ingredients')
+    ingredients = data.get('ingredients')
     if not ingredients:
         raise ValidationError(
             {'ingredients': 'Нужно добавить хотя бы один ингредиент!'}

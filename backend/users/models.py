@@ -1,7 +1,9 @@
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 
-from .validators import validate_username
+from . import constants
+from .validators import validate_name
 
 
 class User(AbstractUser):
@@ -12,35 +14,42 @@ class User(AbstractUser):
 
     username = models.CharField(
         unique=True,
-        validators=(validate_username,),
-        max_length=150,
+        validators=(UnicodeUsernameValidator(),),
+        max_length=constants.MAX_USERNAME_LENGTH,
         verbose_name='Юзернейм',
         help_text='Укажите юзернейм',
     )
     email = models.EmailField(
         unique=True,
-        max_length=150,
+        max_length=constants.MAX_USERNAME_LENGTH,
         verbose_name='email',
         help_text='Укажите адрес электронной почты',
     )
     first_name = models.CharField(
-        max_length=150,
-        blank=False,
+        max_length=constants.MAX_FIRSTNAME_LENGTH,
+        validators=(validate_name,),
         verbose_name='Имя',
         help_text='Укажите имя',
-
     )
     last_name = models.CharField(
-        max_length=150,
-        blank=False,
+        max_length=constants.MAX_LASTNAME_LENGTH,
+        validators=(validate_name,),
         verbose_name='Фамилия',
         help_text='Укажите фамилию',
     )
-    password = models.CharField(
-        max_length=150,
-        blank=False,
-        verbose_name='Пароль',
-        help_text='Введите пароль',
+    favorite_recipes = models.ManyToManyField(
+        'recipes.Recipe',
+        blank=True,
+        related_name='users_favorite_recipes',
+        verbose_name='Избранные рецепты',
+        help_text='Выберите избранные рецепты',
+    )
+    shopping_cart_recipes = models.ManyToManyField(
+        'recipes.Recipe',
+        blank=True,
+        related_name='users_shopping_cart_recipes',
+        verbose_name='Рецепты в корзине покупок',
+        help_text='Добавьте рецепты в корзину покупок',
     )
 
     class Meta:

@@ -1,5 +1,5 @@
 import os
-from csv import reader
+from csv import DictReader
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
@@ -20,26 +20,22 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         for model, filename in DATA:
-            file = os.path.join(settings.BASE_DIR, 'data', filename)
-            with open(file, 'r', encoding='utf-8') as csv_file:
-                for row in reader(csv_file):
-                    try:
-                        if model == Ingredient:
-                            model.objects.get_or_create(
-                                name=row[0],
-                                measurement_unit=row[1]
-                            )
-                        if model == Tag:
-                            model.objects.get_or_create(
-                                name=row[0],
-                                color=row[1],
-                                slug=row[2]
-                            )
-                    except ValueError as error:
-                        self.stdout.write(self.style.ERROR(
-                            'Ошибка при загрузке данных'
-                            f'для модели "{model.__name__}": {error}'
-                        ))
-                self.stdout.write(self.style.SUCCESS(
-                    f'Данные для модели "{model.__name__}" успешно загружены'
+            try:
+                file = os.path.join(settings.BASE_DIR, 'data', filename)
+                with open(file, 'r', encoding='utf-8') as csv_file:
+                    for data in DictReader(csv_file):
+                        try:
+                            model.objects.get_or_create(**data)
+                        except ValueError as error:
+                            self.stdout.write(self.style.ERROR(
+                                'Ошибка при загрузке данных'
+                                f'для модели "{model.__name__}": {error}'
+                            ))
+                    self.stdout.write(self.style.SUCCESS(
+                        f'Данные для модели "{model.__name__}" '
+                        f'успешно загружены'
+                    ))
+            except FileNotFoundError:
+                self.stdout.write(self.style.ERROR(
+                    f'Файл "{filename}" не найден'
                 ))

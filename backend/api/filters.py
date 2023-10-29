@@ -1,18 +1,6 @@
 from django_filters import rest_framework as filters
-from recipes.models import Ingredient, Recipe
 
-
-class IngredientFilter(filters.FilterSet):
-    """Фильтрация ингредиентов по названию."""
-
-    name = filters.CharFilter(
-        field_name='name',
-        lookup_expr='startswith',
-    )
-
-    class Meta:
-        model = Ingredient
-        fields = ('name',)
+from recipes.models import Recipe
 
 
 class RecipeFilter(filters.FilterSet):
@@ -42,7 +30,11 @@ class RecipeFilter(filters.FilterSet):
         return queryset
 
     def filter_is_favorited(self, queryset, name, value):
-        return self.filter_by_relation(queryset, 'favorites__user', value)
+        return self.filter_by_relation(
+            queryset, 'users_favorite_recipes', value
+        )
 
     def filter_is_in_shopping_cart(self, queryset, name, value):
-        return self.filter_by_relation(queryset, 'shoppingcarts__user', value)
+        return self.filter_by_relation(
+            queryset, 'users_shopping_cart_recipes', value
+        )
