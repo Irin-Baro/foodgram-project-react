@@ -8,18 +8,15 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
-from users.models import Subscription, User
+from ..recipes.models import Ingredient, Recipe, RecipeIngredient, Tag
+from ..users.models import Subscription, User
 from .filters import RecipeFilter
 from .pagination import Pagination
 from .permissions import ActionPermissions, IsAuthorOrReadOnly
-from .serializers import (UserSerializer,
-                          IngredientSerializer,
-                          RecipeCreateSerializer,
-                          RecipeSerializer,
-                          SmallRecipeSerializer,
-                          SubscriptionSerializer,
-                          TagSerializer)
+from .serializers import (IngredientSerializer, RecipeCreateSerializer,
+                          RecipeSerializer, SmallRecipeSerializer,
+                          SubscriptionSerializer, TagSerializer,
+                          UserSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
