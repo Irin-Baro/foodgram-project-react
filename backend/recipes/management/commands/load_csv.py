@@ -25,7 +25,7 @@ class Command(BaseCommand):
                 with open(file, 'r', encoding='utf-8') as csv_file:
                     for data in DictReader(csv_file):
                         try:
-                            model.objects.get_or_create(**data)
+                            model.objects.bulk_create([model(**data)])
                         except ValueError as error:
                             self.stdout.write(self.style.ERROR(
                                 'Ошибка при загрузке данных'

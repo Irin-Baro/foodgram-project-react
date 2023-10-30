@@ -1,8 +1,8 @@
-from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 
+from ..core import constants
 from ..users.models import User
-from . import constants
+from . import validators
 
 
 class Tag(models.Model):
@@ -10,6 +10,7 @@ class Tag(models.Model):
 
     name = models.CharField(
         max_length=constants.MAX_TAG_NAME_LENGTH,
+        validators=(validators.validate_tag_name,),
         unique=True,
         verbose_name='Название тега',
         help_text='Укажите название тега',
@@ -17,12 +18,7 @@ class Tag(models.Model):
     color = models.CharField(
         unique=True,
         max_length=constants.MAX_TAG_COLOR_LENGTH,
-        validators=(
-            RegexValidator(
-                regex='^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$',
-                message='Введенное значение не соответствует формату HEX!'
-            ),
-        ),
+        validators=(validators.validate_color,),
         verbose_name='Цветовой HEX-код',
         help_text='Укажите цветовой HEX-код',
     )
@@ -47,6 +43,7 @@ class Ingredient(models.Model):
 
     name = models.CharField(
         max_length=constants.MAX_INGREDIENT_NAME_LENGTH,
+        validators=(validators.validate_ingredient_name,),
         db_index=True,
         verbose_name='Название ингредиента',
         help_text='Укажите название ингредиента',
@@ -58,6 +55,12 @@ class Ingredient(models.Model):
     )
 
     class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('name', 'measurement_unit'),
+                name='unique_ingredients'
+            ),
+        )
         ordering = ('name',)
         verbose_name = 'Ингредиент'
         verbose_name_plural = 'Ингредиенты'
@@ -78,6 +81,7 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         max_length=constants.MAX_RECIPE_NAME_LENGTH,
+        validators=(validators.validate_recipe_name,),
         db_index=True,
         verbose_name='Название рецепта',
         help_text='Укажите название рецепта',
@@ -99,12 +103,7 @@ class Recipe(models.Model):
         help_text='Выберите теги',
     )
     cooking_time = models.PositiveSmallIntegerField(
-        validators=(
-            MinValueValidator(
-                constants.MIN_VALUE_COOKING_TIME,
-                message='Минимальное время: 1 минута!'
-            ),
-        ),
+        validators=(validators.validate_cooking_time,),
         verbose_name='Время приготовления (в минутах)',
         help_text='Укажите время приготовления',
     )
@@ -121,14 +120,6 @@ class Recipe(models.Model):
 
     def __str__(self):
         return self.name
-
-    @property
-    def ingredients(self):
-        recipe_ingredients = RecipeIngredient.objects.filter(recipe=self)
-        return [
-            (recipe_ingredient.ingredient, recipe_ingredient.amount)
-            for recipe_ingredient in recipe_ingredients
-        ]
 
 
 class RecipeIngredient(models.Model):
@@ -149,17 +140,18 @@ class RecipeIngredient(models.Model):
         help_text='Укажите ингредиент',
     )
     amount = models.PositiveSmallIntegerField(
-        validators=(
-            MinValueValidator(
-                constants.MIN_VALUE_INGREDIENT_AMOUNT,
-                message='Минимальное количество: 1!'
-            ),
-        ),
+        validators=(validators.validate_amount,),
         verbose_name='Количество',
         help_text='Укажите количество ингредиента в рецепте',
     )
 
     class Meta:
+        constraints = (
+            models.UniqueConstraint(
+                fields=('recipe', 'ingredient'),
+                name='unique_ingredient_in_recipe'
+            ),
+        )
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
 

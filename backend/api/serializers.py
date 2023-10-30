@@ -203,9 +203,6 @@ class RecipeCreateSerializer(RecipeSerializer):
         ).data
         return representation
 
-    def add_tags(self, tags_data, recipe):
-        recipe.tags.add(*[Tag.objects.get(id=tag.id) for tag in tags_data])
-
     def add_ingredients(self, ingredients_data, recipe):
         RecipeIngredient.objects.bulk_create(
             [RecipeIngredient(
@@ -222,7 +219,7 @@ class RecipeCreateSerializer(RecipeSerializer):
         tags = validated_data.pop('tags')
         ingredients = validated_data.pop('ingredients')
         recipe = Recipe.objects.create(author=author, **validated_data)
-        self.add_tags(tags, recipe)
+        recipe.tags.set(tags)
         self.add_ingredients(ingredients, recipe)
         return recipe
 
@@ -234,8 +231,9 @@ class RecipeCreateSerializer(RecipeSerializer):
         instance.text = validated_data.get('text', instance.text)
         instance.image = validated_data.get('image', instance.image)
         ingredients_data = validated_data.pop('ingredients')
+        RecipeIngredient.objects.filter(recipe=instance).delete()
         self.add_ingredients(ingredients_data, instance)
-        tags_data = validated_data.pop('tags')
-        self.add_tags(tags_data, instance)
+        tags = validated_data.pop('tags')
+        instance.tags.set(tags)
         instance.save()
         return instance

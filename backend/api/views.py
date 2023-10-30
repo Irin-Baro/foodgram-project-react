@@ -2,7 +2,6 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from djoser.serializers import SetPasswordSerializer, UserCreateSerializer
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -19,7 +18,7 @@ from .serializers import (IngredientSerializer, RecipeCreateSerializer,
                           UserSerializer)
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.GenericViewSet):
     """Представление пользователей."""
 
     queryset = User.objects.all()
@@ -29,41 +28,10 @@ class UserViewSet(viewsets.ModelViewSet):
     search_fields = ('username',)
     filterset_fields = ('username',)
 
-    def get_serializer_class(self):
-        if self.action in ('list', 'retrieve', 'me'):
-            return UserSerializer
-        elif self.action == 'set_password':
-            return SetPasswordSerializer
-        if self.action in ('subscribe', 'subscriptions'):
-            return SubscriptionSerializer
-        return UserCreateSerializer
-
-    @action(
-        methods=('get',),
-        detail=False,
-        permission_classes=(IsAuthenticated,),
-    )
-    def me(self, request):
-        serializer = self.get_serializer(request.user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    @action(
-        methods=('post',),
-        detail=False,
-        permission_classes=(IsAuthenticated,),
-    )
-    def set_password(self, request):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        user = request.user
-        user.set_password(serializer.validated_data['new_password'])
-        user.save()
-        return Response('Пароль успешно изменен.',
-                        status=status.HTTP_204_NO_CONTENT)
-
     @action(
         methods=('post', 'delete'),
         detail=True,
+        serializer_class=SubscriptionSerializer,
         permission_classes=(IsAuthenticated,),
         pagination_class=Pagination
     )
@@ -96,6 +64,7 @@ class UserViewSet(viewsets.ModelViewSet):
     @action(
         methods=('get',),
         detail=False,
+        serializer_class=SubscriptionSerializer,
         permission_classes=(IsAuthenticated,),
         pagination_class=Pagination
     )
@@ -127,20 +96,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         return RecipeCreateSerializer
 
     def add_recipe(self, relation, user, pk):
-        try:
-            recipe = get_object_or_404(Recipe, id=pk)
-        except Exception:
-            return Response(
-                {'errors': 'Такого рецепта нет'},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        recipe = get_object_or_404(Recipe, id=pk)
         if getattr(user, relation).filter(id=pk).exists():
             return Response(
-                {'errors': 'Рецепт уже был добавлен'},
+                {'errors': 'Рецепт уже был добавлен.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         getattr(user, relation).add(recipe)
-        user.shopping_cart_recipes.add(recipe)
         return Response(
             SmallRecipeSerializer(recipe).data,
             status=status.HTTP_201_CREATED
@@ -150,7 +112,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
         recipe = get_object_or_404(Recipe, id=pk)
         if not getattr(user, relation).filter(id=pk).exists():
             return Response(
-                {'errors': 'Рецепт не был добавлен в корзину покупок'},
+                {'errors': 'Рецепт не был добавлен.'},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         getattr(user, relation).remove(recipe)
