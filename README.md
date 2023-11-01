@@ -9,7 +9,6 @@
 [![Yandex.Cloud](https://img.shields.io/badge/-Yandex.Cloud-464646?style=flat-square&logo=Yandex.Cloud)](https://cloud.yandex.ru/)
 <br>
 
-
 # Cервис Foodgram - продуктовый помощник
 
 - [Описание](#description)
@@ -18,7 +17,7 @@
 - [Деплой на сервере](#deploy)
 - [Автор](#author)
 
----
+
 ## Описание <a id=description></a>
 
 Проект "Продуктовый помошник" (Foodgram) предоставляет пользователям следующие возможности:
@@ -29,19 +28,19 @@
   - подписываться на других пользователей
   - скачать список ингредиентов для рецептов, добавленных в "Корзину"
 
-Проект доступен по [адресу](https://foodgram-baro.hopto.org/)
-- email: 
+Проект доступен по адресу [(https://foodgram-baro.hopto.org/)]
+email: 
 ```sh
 admin-email@ya.ru
 ```
-- password:
+password:
 ```sh
 1
 ```
 
 ## Установка <a id=run></a>
 
-1. Клонируйте репозиторий на свой компьютер:
+1. Клонируйте репозиторий:
 
     ```sh
     git clone https://github.com/Irin-Baro/foodgram-project-react
@@ -110,7 +109,7 @@ admin-email@ya.ru
     sudo service nginx reload
     ```
 
-4. Установка docker compose на сервер:
+6. Установка docker compose на сервер:
 
     ```sh
     sudo apt update
@@ -120,7 +119,7 @@ admin-email@ya.ru
     sudo apt-get install docker-compose-plugin
     ```
 
-5. Запуск docker compose:
+7. Запуск docker compose:
 
     ```sh
     sudo docker compose -f docker-compose.production.yml up -d
