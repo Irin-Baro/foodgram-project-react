@@ -16,6 +16,7 @@ class UserAdmin(admin.ModelAdmin):
     )
     list_display_links = ('username',)
     search_fields = ('email', 'username',)
+    filter_horizontal = ('favorite_recipes', 'shopping_cart_recipes')
     list_filter = ('username', 'email')
 
 

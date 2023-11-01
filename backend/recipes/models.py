@@ -1,7 +1,7 @@
 from django.db import models
 
-from ..core import constants
-from ..users.models import User
+from core import constants
+from users.models import User
 from . import validators
 
 
@@ -10,7 +10,7 @@ class Tag(models.Model):
 
     name = models.CharField(
         max_length=constants.MAX_TAG_NAME_LENGTH,
-        validators=(validators.validate_tag_name,),
+        validators=(validators.tag_name_validator,),
         unique=True,
         verbose_name='Название тега',
         help_text='Укажите название тега',
@@ -18,7 +18,7 @@ class Tag(models.Model):
     color = models.CharField(
         unique=True,
         max_length=constants.MAX_TAG_COLOR_LENGTH,
-        validators=(validators.validate_color,),
+        validators=(validators.color_validator,),
         verbose_name='Цветовой HEX-код',
         help_text='Укажите цветовой HEX-код',
     )
@@ -43,7 +43,7 @@ class Ingredient(models.Model):
 
     name = models.CharField(
         max_length=constants.MAX_INGREDIENT_NAME_LENGTH,
-        validators=(validators.validate_ingredient_name,),
+        validators=(validators.ingredient_name_validator,),
         db_index=True,
         verbose_name='Название ингредиента',
         help_text='Укажите название ингредиента',
@@ -81,7 +81,7 @@ class Recipe(models.Model):
     )
     name = models.CharField(
         max_length=constants.MAX_RECIPE_NAME_LENGTH,
-        validators=(validators.validate_recipe_name,),
+        validators=(validators.recipe_name_validator,),
         db_index=True,
         verbose_name='Название рецепта',
         help_text='Укажите название рецепта',
@@ -103,7 +103,7 @@ class Recipe(models.Model):
         help_text='Выберите теги',
     )
     cooking_time = models.PositiveSmallIntegerField(
-        validators=(validators.validate_cooking_time,),
+        validators=(validators.cooking_time_validator,),
         verbose_name='Время приготовления (в минутах)',
         help_text='Укажите время приготовления',
     )
@@ -140,7 +140,7 @@ class RecipeIngredient(models.Model):
         help_text='Укажите ингредиент',
     )
     amount = models.PositiveSmallIntegerField(
-        validators=(validators.validate_amount,),
+        validators=(validators.amount_validator,),
         verbose_name='Количество',
         help_text='Укажите количество ингредиента в рецепте',
     )

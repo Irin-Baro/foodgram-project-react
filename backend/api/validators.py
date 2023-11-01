@@ -1,7 +1,7 @@
 from rest_framework import status
 from rest_framework.serializers import ValidationError
 
-from ..recipes.models import Ingredient
+from recipes.models import Ingredient
 
 
 def validate_subscription(self, data):
