@@ -21,7 +21,7 @@ ingredient_name_validator = RegexValidator(
 
 recipe_name_validator = RegexValidator(
     regex=r'^[а-яА-Яa-zA-ZёЁ\s\-\(\)\"\'«»]+$',
-    message=('Можно использовать только буквы, скобки, '
+    message=('В названии рецепта можно использовать только буквы, скобки, '
              'знаки дефис и кавычки!')
 )
 

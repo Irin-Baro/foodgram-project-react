@@ -3,5 +3,5 @@ from django.core.validators import RegexValidator
 
 name_validator = RegexValidator(
     regex=r'^[а-яА-Яa-zA-Z\s\-]+$',
-    message='Можно использовать только буквы и знак дефис!'
+    message='В имени и фамилии можно использовать только буквы и знак дефис!'
 )

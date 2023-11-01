@@ -29,101 +29,7 @@
   - подписываться на других пользователей
   - скачать список ингредиентов для рецептов, добавленных в "Корзину"
 
-Проект доступен по [адресу](https://foodgram-baro.hopto.org/)   
-
-## Установка <a id=run></a>
-
-1. Клонируйте репозиторий на свой компьютер:
-
-    ```bash
-    git clone https://github.com/Irin-Baro/foodgram-project-react
-    ```
-    ```bash
-    cd foodgram-project-react
-    ```
-2. Создайте файл .env и заполните его своими данными. (Пример в корневой директории проекта в файле .env.example)
-
-### Создание Docker-образов <a id=docker></a>
-
-1.  Замените username на ваш логин на DockerHub:
-
-    ```bash
-    cd frontend
-    docker build -t username/foodgram_frontend .
-    cd ../backend
-    docker build -t username/foodgram_backend . 
-    ```
-
-2. Загрузите образы на DockerHub:
-
-    ```bash
-    docker push username/foodgram_frontend
-    docker push username/foodgram_backend
-    ```
-
-### Деплой на сервере <a id=deploy></a>
-
-1. Подключитесь к удаленному серверу
-
-    ```bash
-    ssh -i путь_до_файла_с_SSH_ключом/название_файла_с_SSH_ключом имя_пользователя@ip_адрес_сервера 
-    ```
-
-2. Создайте на сервере директорию foodgram через терминал
-
-    ```bash
-    mkdir foodgram
-    ```
-
-3. В директории foodgram/ разместите файл .env со своими данными:
-
-    ```bash
-    touch .env
-    nano .env
-    ```
-
-4. Установка docker compose на сервер:
-
-    ```bash
-    sudo apt update
-    sudo apt install curl
-    curl -fSL https://get.docker.com -o get-docker.sh
-    sudo sh ./get-docker.sh
-    sudo apt-get install docker-compose-plugin
-    ```
-
-5. Изменение настройки location в секции server:
-
-    ```bash
-    sudo nano /etc/nginx/sites-enabled/default
-    ```
-
-    ```bash
-    location / {
-        proxy_set_header Host $http_host;
-        proxy_pass http://127.0.0.1:8000;
-    }
-    ```
-
-6. Проверка работоспособности конфига Nginx:
-
-    ```bash
-    sudo nginx -t
-    ```
-
-7. Перезапуск Nginx
-    ```bash
-    sudo service nginx reload
-    ```
-
-## Автор <a id=author></a>
-
-Ирина Баронская  
-- [Ирина Баронская](https://github.com/Irin-Baro)
-- domain: 
-```sh
-https://foodgram-baro.hopto.org/
-```
+Проект доступен по [адресу](https://foodgram-baro.hopto.org/)
 - email: 
 ```sh
 admin-email@ya.ru
@@ -132,3 +38,95 @@ admin-email@ya.ru
 ```sh
 1
 ```
+
+## Установка <a id=run></a>
+
+1. Клонируйте репозиторий на свой компьютер:
+
+    ```sh
+    git clone https://github.com/Irin-Baro/foodgram-project-react
+    ```
+    ```sh
+    cd foodgram-project-react
+    ```
+2. Создайте файл .env и заполните его своими данными. (Пример в корневой директории проекта в файле .env.example)
+
+### Создание Docker-образов <a id=docker></a>
+
+1.  Замените username на ваш логин на DockerHub:
+
+    ```sh
+    cd frontend
+    docker build -t username/foodgram_frontend .
+    cd ../backend
+    docker build -t username/foodgram_backend . 
+    ```
+
+2. Загрузите образы на DockerHub:
+
+    ```sh
+    docker push username/foodgram_frontend
+    docker push username/foodgram_backend
+    ```
+
+### Деплой на сервере <a id=deploy></a>
+
+1. Подключитесь к удаленному серверу:
+
+    ```sh
+    ssh -i путь_до_файла_с_SSH_ключом/название_файла_с_SSH_ключом имя_пользователя@ip_адрес_сервера 
+    ```
+
+2. Создайте на сервере директорию foodgram через терминал:
+
+    ```sh
+    mkdir foodgram
+    ```
+
+3. В директории foodgram/ разместите файл .env со своими данными:
+
+    ```sh
+    touch .env
+    nano .env
+    ```
+
+4. Изменение настройки location в секции server:
+
+    ```sh
+    sudo nano /etc/nginx/sites-enabled/default
+    ```
+
+    ```sh
+    location / {
+        proxy_set_header Host $http_host;
+        proxy_pass http://127.0.0.1:8000;
+    }
+    ```
+
+5. Проверка и перезапуск Nginx:
+
+    ```sh
+    sudo nginx -t
+    sudo service nginx reload
+    ```
+
+4. Установка docker compose на сервер:
+
+    ```sh
+    sudo apt update
+    sudo apt install curl
+    curl -fSL https://get.docker.com -o get-docker.sh
+    sudo sh ./get-docker.sh
+    sudo apt-get install docker-compose-plugin
+    ```
+
+5. Запуск docker compose:
+
+    ```sh
+    sudo docker compose -f docker-compose.production.yml up -d
+    ```
+
+## Автор <a id=author></a>
+ 
+- [Ирина Баронская](https://github.com/Irin-Baro)
+
