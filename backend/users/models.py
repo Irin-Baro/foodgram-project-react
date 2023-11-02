@@ -42,14 +42,12 @@ class User(AbstractUser):
         blank=True,
         related_name='users_favorite_recipes',
         verbose_name='Избранные рецепты',
-        help_text='Выберите избранные рецепты',
     )
     shopping_cart_recipes = models.ManyToManyField(
         'recipes.Recipe',
         blank=True,
         related_name='users_shopping_cart_recipes',
         verbose_name='Рецепты в корзине покупок',
-        help_text='Добавьте рецепты в корзину покупок',
     )
 
     class Meta:

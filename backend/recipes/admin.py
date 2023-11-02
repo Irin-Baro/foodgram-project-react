@@ -29,6 +29,7 @@ class RecipeIngredientAdmin(admin.TabularInline):
     model = RecipeIngredient
     extra = 1
     min_num = 1
+    autocomplete_fields = ('ingredient',)
 
 
 @admin.register(Recipe)
@@ -43,7 +44,7 @@ class RecipeAdmin(admin.ModelAdmin):
         'display_ingredients',
         'get_favorite_count',
     )
-    search_fields = ('name', 'ingredients__name')
+    search_fields = ('name', 'ingredients__ingredient__name')
     list_filter = ('tags', 'name', 'author__username')
     list_display_links = ('name',)
     filter_horizontal = ('tags',)

@@ -1,6 +1,17 @@
 from django_filters import rest_framework as filters
+from rest_framework.filters import SearchFilter
 
 from recipes.models import Recipe
+
+
+class IngredientSearchFilter(SearchFilter):
+    """Фильтрация ингредиентов по названию."""
+
+    def filter_queryset(self, request, queryset, view):
+        name = request.query_params.get('name', None)
+        if name:
+            queryset = queryset.filter(name__istartswith=name)
+        return queryset
 
 
 class RecipeFilter(filters.FilterSet):
